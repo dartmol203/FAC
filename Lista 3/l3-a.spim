@@ -1,0 +1,141 @@
+#.data
+#
+#msg1:   .asciiz     "Digite g: "
+#msg2:   .asciiz     "Digite h: "
+#msg3:   .asciiz     "Digite i: "
+#msg4:   .asciiz     "Digite j: "
+#res:    .asciiz     "f = (g + h) - (i + j) = "
+#nl:     .asciiz     "\n"
+#
+#        .text
+#main:
+#        # li (pseudoinstrucao): li reg, const  => carrega o valor da constante no registrador reg
+#        # la (pseudoinstrucao): la reg, rotulo => carrega o endereço de memória do rótulo no registrador reg
+#        # move (pseudoinstrucao): move reg1, reg2 => reg1 = reg2
+#
+#        # $s0: g
+#        # $s1: h
+#        # $s2: i
+#        # $s3: j
+#
+#        # Imprime msg1 na tela
+#        li          $v0, 4              # $v0 = 4
+#        la          $a0, msg1           # carrega em $a0 o endereço de memória de msg1
+#        syscall
+#
+#        # Le um numero inteiro do teclado
+#        li          $v0, 5              # $v0 = 5
+#        syscall
+#        move        $s0, $v0            # move para $s0 o valor lido do teclado que esta em $v0
+#
+#        # Imprime msg2 na tela
+#        li          $v0, 4              # $v0 = 4
+#        la          $a0, msg2           # carrega em $a0 o endereço de memória de msg2
+#        syscall
+#
+#        # Le um numero inteiro do teclado
+#        li          $v0, 5              # $v0 = 5
+#        syscall
+#        move        $s1, $v0            # move para $s0 o valor lido do teclado que esta em $v0
+#
+#
+#
+#        # Chama a funcao exemplo_folha
+#
+#        # (a) - salva os argumentos da funcao
+#        move        $a0, $s0
+#        move        $a1, $s1
+#
+#        # (b) - desvia o fluxo para a funcao
+#        jal         multfac       # desvia o fluxo para exemplo_folha e salva o endereco da próxima instrucao em $ra
+#
+#        mfhi        $s0
+#        mflo        $s1
+#
+#        li          $v0, 1
+#        move        $a0, $s0            # $a0 = $t2, o numero a ser impresso
+#        syscall
+#
+#        # Imprime \n
+#        li          $v0, 4
+#        la          $a0, nl
+#        syscall
+#
+#        li          $v0, 1
+#        move        $a0, $s1            # $a0 = $t2, o numero a ser impresso
+#        syscall
+#
+#        # Imprime \n
+#        li          $v0, 4
+#        la          $a0, nl
+#        syscall
+#
+#        # Encerrar o programa
+#        li          $v0, 10
+#        syscall
+
+multfac:
+
+    move    $t3, $zero
+
+    slt     $t0, $a0, $zero
+    slt		$t1, $a1, $zero		# $t1 = ($a1 < $zero) ? 1 : 0
+    
+    beq     $t0, $zero, aPos
+
+    neg     $a0, $a0
+    #addi    $a0, $a0, 1
+aPos:
+
+    beq     $t1, $zero, bPos
+
+    neg     $a1, $a1
+    #addi    $a1, $a1, 1
+bPos:
+
+    beq		$t0, $t1, sinaisIguais	# if $t0 == $t1 then Sinais iguais
+    
+    addi    $t3, $t3, 1
+
+sinaisIguais:
+
+    move    $t6, $zero
+    move    $t7, $zero
+
+    beq     $a0, $zero, done
+    beq     $a1, $zero, done
+
+    move    $t4, $zero
+
+loop:
+    andi    $t5, $a1, 1
+    beq     $t5, $zero, next
+    addu    $t6, $t6, $a0
+    sltu    $t5, $t6, $a0
+    addu    $t7, $t7, $t5
+    addu    $t7, $t7, $t4
+
+next:
+
+    srl     $t5, $a0, 31
+    sll     $a0, $a0, 1
+    sll     $t4, $t4, 1
+    addu    $t4, $t4, $t5
+
+    srl     $a1, $a1, 1
+    bne     $a1, $zero, loop
+
+done:
+
+    beq     $t3, $zero, segue
+
+    not     $t7, $t7
+    neg     $t6, $t6
+
+
+segue:
+
+    mthi    $t7
+    mtlo    $t6
+
+    jr $ra

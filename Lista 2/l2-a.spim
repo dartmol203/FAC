@@ -1,0 +1,71 @@
+        .data
+
+msg1:   .asciiz     "overflow"
+
+
+        .text
+main:
+        #s0 = num 1
+        #s1 = num 2
+        #s2 = num 3
+        # Le um numero inteiro do teclado
+        li          $v0, 5      # $v0 = 5
+        syscall
+        move        $s0, $v0    # move para $s0 o valor lido do teclado que esta em $v0
+
+        # Le um numero inteiro do teclado
+        li          $v0, 5      # $v0 = 5
+        syscall
+        move        $s1, $v0    # move para $s0 o valor lido do teclado que esta em $v0
+
+        # Le um numero inteiro do teclado
+        li          $v0, 5      # $v0 = 5
+        syscall
+        move        $s2, $v0    # move para $s0 o valor lido do teclado que esta em $v0
+
+        bne         $s0, $zero, comSinal
+
+semSinal:
+        nor         $t3, $s1, $zero
+        sltu        $t3, $t3, $s2
+        bne         $t3, $zero, overflow
+
+        j           notoverflow
+comSinal:
+        
+        addu        $t0, $s1, $s2               # $t0 = $s0 + $s2
+
+        xor         $t3, $s1, $s2		# $t3 = $s1 ^ $s2
+        
+        slt	    $t3, $t3, $zero             # $t3 < 0?
+        
+        bne         $t3, $zero, notoverflow     # $t3 != 0? -> notoverflow
+
+        xor         $t3, $t0, $s2               # $t3 = $t0 ^ $s2
+
+        slt	    $t3, $t3, $zero             # $t3 < 0?
+        
+        bne         $t3, $zero, overflow        # $t3 != 0? -> overflow
+        j	    notoverflow				# jump to notoverflow
+        
+overflow:
+
+        li          $v0, 4              # $v0 = 4
+        la          $a0, msg1            # carrega em $a0 o endereço de memória de res
+        syscall
+
+        j		    fim				# jump to fim
+        
+notoverflow:
+
+        add         $t0, $s1, $s2
+        
+        li          $v0, 1
+        move        $a0, $t0            # $a0 = $t2, o numero a ser impresso
+        syscall
+
+        j           fim
+fim:
+        # Encerrar o programa
+        li          $v0, 10
+        syscall

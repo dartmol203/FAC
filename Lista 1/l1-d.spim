@@ -1,0 +1,32 @@
+        .data
+
+        .text
+
+main: 
+
+    li      $v0, 5
+    syscall
+    move    $t0, $v0    # C
+
+    li      $v0, 5
+    syscall
+    move    $t1, $v0    # A
+
+    move    $t3, $zero  # 0
+    move    $t4, $zero
+    
+    addi    $t0, $t0, -1 #c-1
+
+Loop:
+    sub     $t1, $t1, $t0   #A - C-a
+    addi    $t3, $t3, 1     #contador 
+    slt     $t4, $zero, $t1     # A > 0?
+    beq     $t4, 1, Loop
+
+fim:
+    li      $v0, 1
+    move    $a0, $t3
+    syscall
+
+    li      $v0, 10
+    syscall

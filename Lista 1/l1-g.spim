@@ -1,0 +1,87 @@
+#        .data
+#msg4:   .asciiz     "Digite j: "
+#nl:     .asciiz     "\n"
+#        .text
+#main:
+#    # li (pseudoinstrucao): li reg, const  => carrega o valor da constante no registrador reg
+#    # la (pseudoinstrucao): la reg, rotulo => carrega o endereço de memória do rótulo no registrador reg
+#    # move (pseudoinstrucao): move reg1, reg2 => reg1 = reg2
+#
+#    # $s0: g
+#    # $s1: h
+#    # $s2: i
+#    # $s3: j
+#
+#    # Chama a funcao exemplo_folha
+#
+#    # (a) - salva os argumentos da funcao
+#    li          $a0, 105
+#
+#    # (b) - desvia o fluxo para a funcao
+#    jal         bitparidade       # desvia o fluxo para exemplo_folha e salva o endereco da próxima instrucao em $ra
+#
+#    # (c) - salva o retorno da funcao
+#    move        $s4, $v0
+#    move        $s5, $v1
+#
+#
+#    # Imprime o resultado na tela
+#
+#    li          $v0, 1
+#    move        $a0, $s5          # $a0 = $t2, o numero a ser impresso
+#    syscall
+#
+#    # Imprime \n
+#    li          $v0, 4
+#    la          $a0, nl
+#    syscall
+#
+#    # Encerrar o programa
+#    li          $v0, 10
+#    syscall
+bitparidade:
+    # $a0 num menor q 128
+    # $v0 bit paridade 
+    # $v1 num resultante
+    # $t0 cnt loop
+    # $t1 qnts 1
+    # $t2 valor shift
+    # $t3 qnt loops -> 7
+    # $t4 salvador comparação
+    # $t5 const 2
+    # $t6 resto div
+    move    $t0, $zero          # cnt loop = 0
+    move    $t1, $zero          # qnt 1's = 0
+    move    $t2, $a0            # valor shift = num orig
+    move    $v1, $a0            # valor shift = num orig
+    addi    $t3, $zero, 7       # qnt loop = 7
+    addi    $t5, $zero, 2       # const = 2
+for:
+    beq     $t0, $t3, fimFor    # if cnt loop = qnt loop -> jump fimFor
+
+    andi    $t4, $t2, 1         # verifica o bit menos significativo
+    
+    beq     $t4, $zero, naoSoma # if bit menos significativo = 0 -> jump naoSoma
+    addi    $t1, $t1, 1         # qnt 1's++
+    
+naoSoma:
+    srl		$t2, $t2, 1			# $t2 = $t2 >> 1 faz o shift do valor, reduzindo um bit por vez
+    
+    addi    $t0, $t0, 1         # cnt loop ++
+    j for                       # reinicia loop
+fimFor:
+#    rem     $t6, $t1, $t5       # t6 = t2 % t5
+    div     $t1, $t5
+    mfhi    $t6
+    beq     $t6, $zero, par     # if t6 = 0 -> jump par
+    addi    $v0, $zero, 1       # v0 = 1
+    ori     $v1, $v1, 128 # altera o bit mais significativo
+    j       fimProg             # jump fim prog
+par:
+    move    $v0, $zero          # v0 = 0
+    ori     $v1, $v1, 0
+fimProg:
+
+    jr $ra                          # retorna linha padrão do programa
+
+    
