@@ -1,0 +1,52 @@
+.data
+nl:     .asciiz     "\n"
+const:  .float 0.0
+.text
+
+main:
+
+    li $v0, 5
+    syscall
+    move $s0, $v0
+
+    move $t0, $zero
+    lwc1 $f1, const
+    lwc1 $f2, const
+
+loop:
+
+    beq $t0, $s0, calMedia
+
+    li          $v0, 6
+    syscall
+    mov.s $f3, $f0
+
+    add.s $f1, $f1, $f0
+
+    li          $v0, 6
+    syscall
+
+    mul.s $f4, $f3, $f0
+
+    add.s $f2, $f2, $f4
+
+    addi $t0, $t0, 1
+
+    j loop
+
+calMedia:
+    div.s $f5, $f2, $f1
+
+    li          $v0, 2
+    mov.s       $f12, $f5
+    syscall
+
+    # Imprime o \n
+    li          $v0, 4
+    la          $a0, nl
+    syscall
+
+    # Encerra o programa
+    li          $v0, 10
+    syscall
+
