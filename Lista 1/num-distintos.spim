@@ -1,0 +1,32 @@
+
+elemDistintos:
+    # $a0 end base vetor
+    # $a1 qnt elementos
+    # $v0 qnt elementos distintos
+    # $t2 contador loop
+    # $t0 endereço da pos i
+    # $t1 endereço da pos i+1
+    # $t3 valor da pos i
+    # $t4 valor da pos i+1
+
+    move $v0, $zero #$v0 = 0
+    move $t2, $zero #$t2 = 0
+    move $t0, $a0   #$t0 = end base vetor
+    addi $t1, $a0, 4 #$t0 = end base vetor + 4
+loop:
+
+    lw  $t3, 0($t0) #pega valor i
+    lw  $t4, 0($t1) #pega valor i+1
+    beq $t3, $t4, naoSoma # t3 == t3, vai para ñ soma
+    addi $v0, $v0, 1 # soma 1 qnt elem dist
+
+naoSoma:
+
+    addi $t2, $t2, 1 # soma 1 em i
+    addi $t0, $t0, 4 # soma 4 no endereço i -> i+1
+    addi $t1, $t1, 4 # soma 4 no endereço i+1 -> i+2
+    blt $t2, $a1, loop #recomeça loop se i == qnt num
+
+fimLoop:
+
+    jr $ra # retorna pro caller

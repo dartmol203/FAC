@@ -1,0 +1,67 @@
+        .data
+
+ast:    .byte   42
+spc:    .byte   32
+nli:    .byte   10
+
+        .text
+main:
+        #$t0 --- qnt linhas
+        #$t1 --- contador loop1 (lin)
+        #$t2 --- contador loop2 (spc)
+        #$t3 --- contador loop3 (ast)
+        #$t4 --- contador limite loop 2
+        #$t5 --- contador limite loop 3
+
+        #leitura do teclado
+        li $v0, 5
+        syscall
+
+        move $t0, $v0
+        addi $t0, $t0, -1 #qnt linhas -1
+
+        move $t1, $zero
+        j loopLin
+loopLin:
+        bgt $t1, $t0, exit # break cnt loop1 > qntlinhas
+        
+        move $t2, $zero
+        sub $t4, $t0, $t1 # qnt linhas - cntloop1
+
+        move $t3, $zero
+        move $t5, $t1      # cntloop3 = cntloop1
+        add  $t5, $t5, $t5 # cntloop3 * 2
+        addi $t5, $t5, 1   # cntloop3 + 1
+        j loopSpc #comecar subloop
+loopSpc:
+        beq $t2, $t4, loopAst #break cnt loop2 = limite loop2
+
+        li      $v0, 11
+        li      $a0, 32 # imprimir espaço
+        syscall
+     
+        addi $t2, $t2, 1 #somar 1 no contador 2
+        j loopSpc #reiniciar loop
+loopAst:               
+        beq $t3, $t5, fimloop #break cnt loop3 = limite loop3
+
+        li      $v0, 11
+        li      $a0, 42 #imprimir asteristico
+        syscall
+
+        addi $t3, $t3, 1 #somar 1 no contador 3
+        j loopAst   #reiniciar loop
+
+fimloop:
+
+        li      $v0, 11
+        li      $a0, 10 #quebrar linha
+        syscall
+
+        addi $t1, $t1, 1 #somar 1 no contador 1
+        j loopLin #reiniciar loop
+
+exit:
+        li $v0, 10
+        syscall
+    
